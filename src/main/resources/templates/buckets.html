@@ -9,12 +9,15 @@
 <header th:insert="blocks/header :: header"></header>
 
 <div class="container mt-5">
-    <h1>Bucket</h1>
-<!--    <div th:each="el : ${bucket.}" class="alert alert-info mt-2">-->
-<!--            <h3 th:text="${el.id}"></h3>-->
-<!--        </form>-->
-<!--    </div>-->
+    <div th:each="el : ${products}" class="alert alert-info mt-2">
+        <form th:action = "'/bucket/add/' + ${el.id}" method="post">
+            <h3 th:text="${el.title}"></h3>
+            <h3 th:text="${el.price}"></h3>
+            <h3 th:text="${el.description}"></h3>
+            <button th:href="'/bucket/add/' + ${el.id}" class="btn btn-success">Add to cart</button>
+        </form>
     </div>
+</div>
 <div th:insert="blocks/footer :: footer"></div>
 </body>
 </html>

@@ -14,8 +14,7 @@
                 <h3 th:text="${el.title}"></h3>
                 <h3 th:text="${el.price}"></h3>
                 <h3 th:text="${el.description}"></h3>
-                <button th:href="'/bucket/add/' + ${el.id}" class="btn btn-success">Add to cart</button>
-<!--               <a th:href="{'/bucket/add/' + ${el.id}}">Add to Cart</a>-->
+            <button th:href="'/bucket/add/' + ${el.id}" class="btn btn-success">Add to cart</button>
             </form>
     </div>
     </div>

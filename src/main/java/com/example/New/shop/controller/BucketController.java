@@ -1,64 +1,50 @@
 package com.example.New.shop.controller;
 
-
-import com.example.New.shop.dto.BucketDto;
-import com.example.New.shop.entities.Bucket;
-import com.example.New.shop.repo.BucketRepository;
-import com.example.New.shop.service.BucketService;
-import com.example.New.shop.service.BucketServiceImpl;
+import com.example.New.shop.entities.Product;
+import com.example.New.shop.service.BucketServiceV2;
 import com.example.New.shop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
-import java.security.Principal;
+import java.util.Optional;
+
 @Controller
 public class BucketController {
-    @Autowired
-    private final BucketService bucketService;
-    @Autowired
-    private final ProductService productService;
-    private final BucketRepository bucketRepository;
+    private final BucketServiceV2 bucketServiceV2;
 
-    public BucketController(BucketService bucketService, BucketServiceImpl bucketServiceImpl, ProductService productService, BucketRepository bucketRepository) {
-        this.bucketService = bucketService;
+    private final ProductService productService;
+    @Autowired
+    public BucketController(BucketServiceV2 bucketServiceV2, ProductService productService) {
+        this.bucketServiceV2 = bucketServiceV2;
         this.productService = productService;
-        this.bucketRepository = bucketRepository;
     }
+
     @GetMapping("/bucket")
-    public String Bucket(Model model) {
-//        if (principal == null) {
-//            model.addAttribute("buckets", new BucketDto());
-//        } else {
-//            BucketDto bucketDto = bucketService.getBucket(principal.getName());
-//            model.addAttribute("buckets", bucketDto);
-//        }
-//        Iterable<Bucket> buckets = bucketRepository.findAll();
-        model.addAttribute("bucket");
+    public String bucket(Model model) {
+        model.addAttribute("products", bucketServiceV2.viewProductInCart());
+        model.addAttribute("totalPrice", bucketServiceV2.totalPrice());
         return "buckets";
     }
 
 
-
-
-
-    @PostMapping("/bucket/add/{id}")
-    public String addBucket(@PathVariable Long id, Principal principal) {
-        productService.addBucketToUser(principal.getName(), id);
+    @GetMapping("/bucket/add/{id}")
+    public String addProductToBucket(@PathVariable Long id) {
+        Optional<Product> product = productService.findById(id);
+        if (product.isPresent()) {
+            bucketServiceV2.addProduct(product);
+        }
         return "redirect:/";
     }
 
-//    @GetMapping("/bucket/remove/{id}")
-//    public String removeProductFromBucket(@PathVariable("id") Long id) {
-//        Product product = productService.findById(id);
-//        if (product != null) bucketService.removeProduct(product);
-//        return "redirect:/home";
-//    }
-
-
-
-
+    @GetMapping("/bucket/remove/{id}")
+    public String removeProductInBucket(@PathVariable Long id) {
+        Optional<Product> product = productService.findById(id);
+        if (product.isPresent()) {
+            bucketServiceV2.removeProduct(product);
+        }
+        return "redirect:/bucket";
+    }
 }
