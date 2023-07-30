@@ -10,12 +10,17 @@
 <main>
     <div class="container mt-5">
         <div th:each="el : ${products}" class="alert alert-info mt-2">
-            <form th:action = "'/bucket/add/' + ${el.id}" method="post">
-                <h3 th:text="${el.title}"></h3>
-                <h3 th:text="${el.price}"></h3>
-                <h3 th:text="${el.description}"></h3>
-            <button th:href="'/bucket/add/' + ${el.id}" class="btn btn-success">Add to cart</button>
+            <img src="/images/${product.images}" height="60px">
+            <h4 th:text="'ID: ' + ${el.id}"></h4>
+            <h4 th:text="'Name: ' + ${el.title}"></h4>
+            <h4 th:text="'Price: ' + ${el.price}"></h4>
+            <h4 th:text="'Description: ' + ${el.description}"></h4>
+            <form th:action="'/product/' + ${el.id} + '/bucket'" method="get">
+                <button th:href="'/product/' + ${el.id} + '/bucket'" class="btn btn-success">Add product to bucket
+                </button>
             </form>
+        </div>
+
     </div>
     </div>
 </main>
@@ -219,4 +224,3 @@
 <!--            </div>-->
 <!--        </div>-->
 <!--    </div>-->
-

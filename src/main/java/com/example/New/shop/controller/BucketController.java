@@ -1,50 +1,50 @@
 package com.example.New.shop.controller;
 
-import com.example.New.shop.entities.Product;
-import com.example.New.shop.service.BucketServiceV2;
-import com.example.New.shop.service.ProductService;
+import com.example.New.shop.entities.User;
+import com.example.New.shop.repo.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.security.Principal;
 
 @Controller
+@RequiredArgsConstructor
 public class BucketController {
-    private final BucketServiceV2 bucketServiceV2;
-
-    private final ProductService productService;
     @Autowired
-    public BucketController(BucketServiceV2 bucketServiceV2, ProductService productService) {
-        this.bucketServiceV2 = bucketServiceV2;
-        this.productService = productService;
-    }
+    UserRepository userRepository;
+    @Autowired
+    ProductRepository productRepository;
 
     @GetMapping("/bucket")
-    public String bucket(Model model) {
-        model.addAttribute("products", bucketServiceV2.viewProductInCart());
-        model.addAttribute("totalPrice", bucketServiceV2.totalPrice());
-        return "buckets";
+    public String bucket(Model model, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName());
+        if (user == null)
+            throw new IllegalStateException();
+
+        model.addAttribute("title", "Bucket");
+        model.addAttribute("buckets", user.getProduct());
+        return "bucket";
     }
 
-
-    @GetMapping("/bucket/add/{id}")
-    public String addProductToBucket(@PathVariable Long id) {
-        Optional<Product> product = productService.findById(id);
-        if (product.isPresent()) {
-            bucketServiceV2.addProduct(product);
+    @PostMapping("/bucket/remove/{id}")
+    public String removeFromBucket(@PathVariable Long id, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName());
+        if (user == null) {
+            throw new IllegalStateException("User must exist");
         }
-        return "redirect:/";
-    }
 
-    @GetMapping("/bucket/remove/{id}")
-    public String removeProductInBucket(@PathVariable Long id) {
-        Optional<Product> product = productService.findById(id);
-        if (product.isPresent()) {
-            bucketServiceV2.removeProduct(product);
-        }
+        productRepository.findById(id).ifPresent(product -> {
+            if (user.getProduct().stream().noneMatch(other -> other.getId().equals(product.getId()))) {
+                // TODO выводить сообщение об ошибке (продукта нет в корзине)
+                return;
+            }
+            user.getProduct().remove(product);
+            userRepository.save(user);
+        });
+
         return "redirect:/bucket";
     }
 }

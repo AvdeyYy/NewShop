@@ -4,7 +4,7 @@ package com.example.New.shop.controller;
 import com.example.New.shop.entities.Product;
 import com.example.New.shop.repo.ProductRepository;
 
-import lombok.AllArgsConstructor;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,12 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 public class MainController {
     @Autowired
-    private final ProductRepository productRepository;
-//    @GetMapping("/")
-//    public String homeProduct(String title, Model model) {
-//        model.addAttribute("title", "Home page");
-//        return "home";
-//    }
+    ProductRepository productRepository;
 
     @GetMapping("/about")
     public String about(Model model) {
@@ -33,7 +28,5 @@ public class MainController {
         Iterable<Product> products = productRepository.findAll();
         model.addAttribute("products", products);
         return "home";
-
-
     }
 }

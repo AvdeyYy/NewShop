@@ -8,11 +8,9 @@
 <body class="d-flex h-100 text-center text-bg-dark">
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
     <header th:replace="~{blocks/header :: header}"></header>
-
     <div class="container mt-5 mb-5">
         <form action="/login" method="post">
             <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
-
             <div class="form-floating">
                 <input type="email" name="username" class="form-control" id="floatingInput"
                        placeholder="name@example.com">
@@ -26,13 +24,11 @@
             <input type="hidden"
                    name="${_csrf.parameterName}"
                    value="${_csrf.token}"/>
-            <button type="submit" class="btn btn-success">Log in</button><br>
+            <button type="submit" class="btn btn-success">Log in</button>
+            <br>
         </form>
-
-
     </div>
     <footer th:replace="~{blocks/footer :: footer}"></footer>
 </div>
 </body>
-
 </html>

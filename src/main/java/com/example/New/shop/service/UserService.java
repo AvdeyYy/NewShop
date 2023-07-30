@@ -1,33 +1,37 @@
 package com.example.New.shop.service;
 
 import com.example.New.shop.entities.User;
-import com.example.New.shop.entities.enums.Roles;
 import com.example.New.shop.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
     @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public boolean createUser(User user){
+    public void createUser(User user){
         String userName = user.getUsername();
         if (userRepository.findByUsername(userName) != null) {
-            return false;
+            return;
         }
+
         user.setUsername(userName);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Collections.singleton(Roles.ADMIN));
+//        user.setRoles(Collections.singleton(Roles.ADMIN));
         userRepository.save(user);
-        return true;
     }
 
+//    public void addBucketToUser(User user) {
+//        if (user.getBucket() == null) {
+//            Bucket bucket = new Bucket();
+//            user.setBucket(bucket);
+//            userRepository.save(user);
+//        }
+//    }
 }

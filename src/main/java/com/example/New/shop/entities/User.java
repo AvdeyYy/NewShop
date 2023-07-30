@@ -6,26 +6,27 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import javax.management.relation.Role;
-import java.util.Collection;
-import java.util.Set;
+
+import java.util.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class User implements UserDetails{
+public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private  Long id;
-    private  String username;
-    private  String password;
-    private  String  email;
-    @OneToOne(cascade = CascadeType.ALL)
-    private Bucket bucket;
-    private Set<Roles> roles;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    private String username;
+    private String password;
+    private String email;
+    private Set<Roles> roles = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "buckets_products", joinColumns = @JoinColumn(name = "bucket_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+    private List<Product> product = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

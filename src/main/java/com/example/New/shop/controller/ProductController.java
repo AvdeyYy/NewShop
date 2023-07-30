@@ -1,9 +1,7 @@
 package com.example.New.shop.controller;
-import com.example.New.shop.entities.Image;
-import com.example.New.shop.entities.Product;
-import com.example.New.shop.repo.ImageRepository;
-import com.example.New.shop.repo.ProductRepository;
-import com.example.New.shop.service.ProductServiceImpl;
+import com.example.New.shop.entities.*;
+import com.example.New.shop.repo.*;
+import com.example.New.shop.service.*;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +17,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
+import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ProductController {
     @Autowired
-    ProductServiceImpl productServiceImpl;
+    ProductService productService;
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    UserRepository userRepository;
     @Autowired
     ImageRepository imageRepository;
 
@@ -38,6 +38,7 @@ public class ProductController {
         model.addAttribute("products", products);
         return "products";
     }
+
     @GetMapping("/images/{id}")
     public ResponseEntity<?> getImageId(@PathVariable Long id) {
         Image image = imageRepository.findById(id).orElse(null);
@@ -50,14 +51,40 @@ public class ProductController {
 
     @PostMapping("/product/create")
     public String createProduct(Product product, MultipartFile file) throws IOException {
-        productServiceImpl.saveProduct(product,file);
+        productService.saveProduct(product,file);
         return "redirect:/product";
-
     }
-    @PostMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable("id") Long id) {
-        productServiceImpl.deleteProduct(id);
-        return "redirect:/product";
 
+    @PostMapping("/product/delete/{id}")
+    public String deleteProduct(@PathVariable("id") Long id) {
+        productRepository.findById(id).ifPresent(product -> {
+            userRepository.findAll().forEach(user -> {
+                if (user.getProduct().remove(product))
+                    userRepository.save(user);
+            });
+
+            productRepository.delete(product);
+        });
+
+        return "redirect:/product";
+    }
+
+    @GetMapping("product/{id}/bucket")
+    public String bucket(@PathVariable Long id, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName());
+        if (user == null)
+            throw new IllegalStateException("User must exist");
+
+        productRepository.findById(id).ifPresent(product -> {
+            if (user.getProduct().stream().anyMatch(other -> other.getId().equals(product.getId()))) {
+                // TODO выводить сообщение об ошибке (продукт уже в корзине)
+                return;
+            }
+
+            user.getProduct().add(product);
+            userRepository.save(user);
+        });
+
+        return "redirect:/bucket";
     }
 }
